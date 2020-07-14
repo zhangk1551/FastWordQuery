@@ -88,6 +88,17 @@ class Youdao(WebService):
     def fld_explains(self):
         return self._get_field('explains')
 
+    def extract_info(self, single_dict, result):
+        if single_dict == 'blng_sents_part':
+            soup = parse_html(result)
+            for a in soup("a"):
+                a.decompose()
+            for p in soup.find_all("p", {'class':'clickable speech-size'}):
+                p.decompose()
+            return soup
+        else:
+            return result
+
     @with_styles(cssfile='_youdao.css', js=js, need_wrap_css=True, wrap_class='youdao')
     def _get_singledict(self, single_dict, lang='eng'):
         url = u"http://m.youdao.com/singledict?q={0}&dict={1}&le={2}&more=false".format(
@@ -97,15 +108,14 @@ class Youdao(WebService):
         )
         try:
             result = self.get_response(url, timeout=5)
-            return (u'<div id="{0}_contentWrp" class="content-wrp dict-container">'
+            return(u'<div id="{0}_contentWrp" class="content-wrp dict-container">'
                         '<div id="{0}" class="trans-container {0} ">{1}</div>'
                         '</div>'
                         '<div id="outer">'
                         '<audio id="dictVoice" style="display: none"></audio>'
                         '</div>').format(
-                single_dict, 
-                result.decode('utf-8')
-            )
+                single_dict,
+                self.extract_info(single_dict, result.decode('utf-8')))
         except:
             return ''
 

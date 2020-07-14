@@ -799,6 +799,8 @@ class QueryResult(MapDict):
         # avoid return None
         if self['result'] is None:
             self['result'] = ""
+        if self['result'][:4] == "<br>":
+            self['result'] = self['result'][4:]
 
     def set_styles(self, **kwargs):
         for key, value in kwargs.items():
